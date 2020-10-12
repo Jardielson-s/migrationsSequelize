@@ -44,7 +44,7 @@ class  controllersRouter{
             const token =  create_token(id);
 
 
-            return res.status(HTTP_CREATED).json({users,token});
+            return res.status(HTTP_CREATED).send({users,token});
           })
           .catch((err)=>{
               console.log(err);
