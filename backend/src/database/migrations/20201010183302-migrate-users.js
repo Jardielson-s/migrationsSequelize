@@ -20,15 +20,6 @@ module.exports = {
       type: Sequelize.STRING,
       allowNull: false,
     },
-    
-    People_id: {
-      type: Sequelize.INTEGER,
-      allowNull:false,
-      references: {
-        model: 'People',
-        key: 'id'
-      }
-    },
     created_at: {
       type: Sequelize.DATE,
       allowNull: false,
