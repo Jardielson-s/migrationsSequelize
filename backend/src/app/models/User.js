@@ -19,6 +19,16 @@ module.exports = (sequelize,DataTypes)=>{
         },
       });
     
+    User.associate = function(models) {
+      User.belongsToMany(models.Peoples,{
+        through: 'relations',
+        foreignKey: 'UserId', 
+        as: 'People'
+      })
+    }
+
+
+
       User.prototype.toJSON= function(){
         var values = Object.assign({},this.get());
 

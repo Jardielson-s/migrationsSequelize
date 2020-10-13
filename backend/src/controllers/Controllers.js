@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { User } = require('../app/models');
+const { User , People } = require('../app/models');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 //const { secret } = require('../utils/secret.json');
@@ -23,7 +23,7 @@ function create_token(params) {
 class  controllersRouter{
 
      async store(req,res){
-         const {name,email,password} = req.body;
+         const {name,email,password } = req.body;
 
          const hash = bcrypt.hashSync(password,10);
 
@@ -36,7 +36,7 @@ class  controllersRouter{
           const users = await User.create({
               name,
               email,
-              password:hash
+              password:hash,           
           })
           .then(function(users){
             const id = users.id;
@@ -62,6 +62,29 @@ class  controllersRouter{
             return res.status(HTTP_BAD_REQUEST).json({message:"email already exist"});
         }
    
+    }
+
+    async storePeople(req,res){
+        const { cpf,number_account,balence,location,phone} = req.body;
+        
+        const peoples = await People.create({
+            cpf,
+            number_account,
+            balence,
+            location,
+            phone
+        })
+        .then(function(peoples){
+            
+          return res.status(HTTP_CREATED).json(peoples);
+
+        })
+        .catch((err)=>{
+            console.log(err);
+            return res.status(HTTP_BAD_REQUEST).json({message:"don't possible create People" });
+        })
+         
+
     }
 
     async load(req,res){

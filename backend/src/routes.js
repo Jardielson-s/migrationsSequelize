@@ -28,6 +28,7 @@ routes.get("/loadOne/:id",authenticate,controller.loadOne);
 routes.post("/update/:id",authenticate,controller.update);
 routes.get("/destroy/:id",authenticate,controller.destroy);
 routes.get("/sarch",authenticate,controller.sarch);
+routes.post("/createPeople",controller.storePeople);
 
 
 module.exports = routes;
