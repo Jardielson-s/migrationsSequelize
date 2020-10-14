@@ -77,15 +77,24 @@ class  controllersRouter{
 
     async load(req,res){
         try{
-          const data = await User.findAll()
+          const data = await User.findAll({
+              include:[{
+                  model: People,
+                  as: 'People',
+                  through:{attributes: []},
+
+              }]
+          })
           .then(function(data){
               return res.status(HTTP_OK).json(data);
           })
           .catch((err)=>{
-              return res.status(HTTP_INTERNAL_ERROR).json({message:"don't connect with database"});
+              console.log(err);
+              return res.status(HTTP_INTERNAL_ERROR).json({message:"error to load users"});
           })
         }
         catch(err){
+            console.log(err);
             return res.status(HTTP_INTERNAL_ERROR).json({message:"don't connect with database"})
         }
     }
