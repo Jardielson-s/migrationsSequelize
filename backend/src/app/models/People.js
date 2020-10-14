@@ -2,7 +2,7 @@
 
 module.exports = (sequelize,DataTypes) => {
 
-    const People = sequelize.define('Peoples',{
+    const People = sequelize.define('People',{
         cpf: {
             type: DataTypes.STRING,
             validate: {

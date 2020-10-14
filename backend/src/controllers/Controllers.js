@@ -1,24 +1,12 @@
 require('dotenv').config();
 const { User , People } = require('../app/models');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-//const { secret } = require('../utils/secret.json');
+const CreateToken = require('./Jwt');
 const { HTTP_CREATED, HTTP_BAD_REQUEST, HTTP_OK, HTTP_INTERNAL_ERROR, HTTP_NOT_FOUND } = require('../utils/codesHttp');
 
 const { Op } = require('sequelize');
 
-function create_token(params) {
-    return jwt.sign( { params },process.env.SECRET_ENV,{
-        expiresIn:300
-    });
- } 
 
- function authenticate(req,res,next){
-  
-    console.log("middleware");
-
-    next();
- }
 
 class  controllersRouter{
 
@@ -41,7 +29,7 @@ class  controllersRouter{
           .then(function(users){
             const id = users.id;
             
-            const token =  create_token(id);
+            const token =  CreateToken.create_token(id);
 
 
             return res.status(HTTP_CREATED).json({users,token});

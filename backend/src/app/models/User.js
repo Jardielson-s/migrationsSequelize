@@ -20,7 +20,7 @@ module.exports = (sequelize,DataTypes)=>{
       });
     
     User.associate = function(models) {
-      User.belongsToMany(models.Peoples,{
+      User.belongsToMany(models.People,{
         through: 'relations',
         foreignKey: 'UserId', 
         as: 'People'
