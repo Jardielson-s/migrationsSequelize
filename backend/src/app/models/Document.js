@@ -2,7 +2,7 @@
 
 module.exports = (sequelize,DataTypes) => {
 
-    const People = sequelize.define('People',{
+    const Document = sequelize.define('Document',{
         cpf: {
             type: DataTypes.STRING,
             validate: {
@@ -28,12 +28,12 @@ module.exports = (sequelize,DataTypes) => {
           }
     });
 
-    People.associate = function(models){
-      People.belongsToMany(models.User,{
+    Document.associate = function(models){
+      Document.belongsToMany(models.User,{
         through: 'relations',
-        foreingKey: 'PeopleId',
-        as: 'User'
+        as: 'User',
+        foreingKey: 'document_id',
       });
     }
-    return People;
+    return Document;
 }

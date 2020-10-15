@@ -1,7 +1,8 @@
 'use strict';
 
 module.exports = {
-  up: async (queryInterface, Sequelize) => queryInterface.createTable('relations',{
+  up: async (queryInterface, Sequelize) =>{
+    return queryInterface.createTable('relations',{
     id: {
       autoIncrement: true,
       primaryKey: true,
@@ -9,16 +10,16 @@ module.exports = {
       allowNull: false
     },
 
-    UserId: {
+    document_id: {
       type: Sequelize.INTEGER,
-      references: {model: 'users',key: 'id'},
+      references: {model: 'documents',key: 'id'},
       onDelete: 'CASCADE',
       allowNull: false,
     },
 
-    PeopleId: {
+    user_id: {
       type: Sequelize.INTEGER,
-      references: {model: 'people',key: 'id'},
+      references: {model: 'users',key: 'id'},
       onDelete: 'CASCADE',
       allowNull: false,
     },
@@ -34,6 +35,9 @@ module.exports = {
     }
 
   })
+}
 ,
-  down: async queryInterface => queryInterface.dropTable('relations')
+  down: async queryInterface => {
+    return queryInterface.dropTable('relations')
+  }
 };

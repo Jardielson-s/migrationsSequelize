@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { User , People } = require('../app/models');
+const { User , Document } = require('../app/models');
 const bcrypt = require('bcrypt');
 const CreateToken = require('./Jwt');
 const { HTTP_CREATED, HTTP_BAD_REQUEST, HTTP_OK, HTTP_INTERNAL_ERROR, HTTP_NOT_FOUND } = require('../utils/codesHttp');
@@ -11,7 +11,7 @@ const { Op } = require('sequelize');
 class  controllersRouter{
 
      async store(req,res){
-         const {name,email,password } = req.body;
+         const {name,email,password} = req.body;
 
          const hash = bcrypt.hashSync(password,10);
 
@@ -26,11 +26,14 @@ class  controllersRouter{
               email,
               password:hash,           
           })
-          .then(function(users){
+          .then(async function(users){
+
+
             const id = users.id;
             
             const token =  CreateToken.create_token(id);
-
+            
+            
 
             return res.status(HTTP_CREATED).send({users,token});
           })
@@ -53,23 +56,26 @@ class  controllersRouter{
     }
 
     async storePeople(req,res){
-        const { cpf,number_account,balence,location,phone} = req.body;
+        const { cpf,number_account,balence,location,phone,users} = req.body;
         
-        const peoples = await People.create({
+        const documents = await Document.create({
             cpf,
             number_account,
             balence,
             location,
             phone
         })
-        .then(function(peoples){
-            
-          return res.status(HTTP_CREATED).json(peoples);
+        .then(async function(documents){  
+
+          await documents.setUser(users);
+
+          
+          return res.status(HTTP_CREATED).json(documents);
 
         })
         .catch((err)=>{
             console.log(err);
-            return res.status(HTTP_BAD_REQUEST).json({message:"don't possible create People" });
+            return res.status(HTTP_BAD_REQUEST).json({message:"don't possible create Document" });
         })
          
 
@@ -79,8 +85,8 @@ class  controllersRouter{
         try{
           const data = await User.findAll({
               include:[{
-                  model: People,
-                  as: 'People',
+                  model: Document,
+                  as: 'Document',
                   through:{attributes: []},
 
               }]

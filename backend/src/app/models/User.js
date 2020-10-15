@@ -16,26 +16,30 @@ module.exports = (sequelize,DataTypes)=>{
         password: {
           type: DataTypes.STRING,
           allowNull: false,
+          select: false,
         },
       });
+
     
-    User.associate = function(models) {
-      User.belongsToMany(models.People,{
+   
+
+    User.associate = function(models){
+      User.belongsToMany(models.Document,{
         through: 'relations',
-        foreignKey: 'UserId', 
-        as: 'People'
-      })
+        as: 'Document',
+        foreingKey: 'user_id',
+      });
     }
 
+    User.prototype.toJSON= function(){
+      var values = Object.assign({},this.get());
 
+      delete values.password;
 
-      User.prototype.toJSON= function(){
-        var values = Object.assign({},this.get());
+      return values;
+    }
 
-        delete values.password;
-
-        return values;
-      }
+      
 
     return User;
 }
