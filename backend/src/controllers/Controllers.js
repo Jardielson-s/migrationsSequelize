@@ -11,7 +11,7 @@ const { Op } = require('sequelize');
 class  controllersRouter{
 
      async store(req,res){
-         const {name,email,password} = req.body;
+         const {name,email,password,cpf,number_account,balence,location,phone} = req.body;
 
          const hash = bcrypt.hashSync(password,10);
 
@@ -33,13 +33,29 @@ class  controllersRouter{
             
             const token =  CreateToken.create_token(id);
             
+            const documents = await Document.create({
+                cpf,
+                number_account,
+                balence,
+                location,
+                phone
+            })
+            .then(async function(documents){
+               
+                await documents.setUser(users.id);
+
+                return res.status(HTTP_CREATED).send({users,token,documents});
+            })
+            .catch((err)=>{
+                res.status(HTTP_BAD_REQUEST).json({err});
+            });
             
 
-            return res.status(HTTP_CREATED).send({users,token});
+            
           })
           .catch((err)=>{
               console.log(err);
-              return  res.status(HTTP_BAD_REQUEST).json({message:"don't possible registrer user"});
+              return  res.status(HTTP_BAD_REQUEST).json({message:"don't possible registrer user"+err});
           })
       
           
@@ -55,33 +71,7 @@ class  controllersRouter{
    
     }
 
-    async storePeople(req,res){
-        const { cpf,number_account,balence,location,phone,users} = req.body;
-        
-        const documents = await Document.create({
-            cpf,
-            number_account,
-            balence,
-            location,
-            phone
-        })
-        .then(async function(documents){  
-
-          await documents.setUser(users);
-
-          
-          return res.status(HTTP_CREATED).json(documents);
-
-        })
-        .catch((err)=>{
-            console.log(err);
-            return res.status(HTTP_BAD_REQUEST).json({message:"don't possible create Document" });
-        })
-         
-
-    }
-
-    async load(req,res){
+        async load(req,res){
         try{
           const data = await User.findAll({
               include:[{
@@ -108,7 +98,13 @@ class  controllersRouter{
     async loadOne(req,res){
        
         try{
-          const data = await User.findByPk(req.params.id)
+          const data = await User.findByPk(req.params.id,{
+              include:[{
+                  model: Document,
+                  as: 'Document',
+                  through: {attributes:[]},
+              }]
+          })
           
           if(data){
               return res.status(HTTP_OK).json(data);
@@ -126,7 +122,10 @@ class  controllersRouter{
     async update(req,res){
        
         try{
-          const data = await User.findByPk(req.params.id)
+          const data = await User.findByPk(req.params.id);
+
+          const { cpf,number_account,balance,location,phone} = req.body;
+          console.log(cpf,number_account,balance,location,phone);
           
           if(data){
               const {name,email,password} = req.body;
@@ -137,8 +136,23 @@ class  controllersRouter{
                   email,
                   password:hash
               })
-              .then(function(data){
-                  return res.status(HTTP_OK).json(data);
+              .then(async function(data){
+                  const {id} = data;
+                
+                  const document = await Document.findByPk(id);
+
+                  await document.update({
+                      cpf,
+                      number_account,
+                      balance,
+                      location,
+                      phone
+                  })
+                  .catch((err)=>{
+                      res.status(HTTP_BAD_REQUEST).send({err});
+                  });
+                  const datas = await User.findByPk(req.params.id,{include:['Document']});
+                  return res.status(HTTP_OK).json(datas);
               })
               .catch((err)=>{
                   return res.status(HTTP_BAD_REQUEST).json({message:"don't possible update datas"});
@@ -165,6 +179,13 @@ class  controllersRouter{
                   id:data
               }})
               .then(function(data){
+                  
+                  Document.destroy({where:{
+                      id: data.id
+                  }})
+                  .catch((err)=> {
+                      res.status(HTTP_NOT_FOUND).json({err});
+                  })
                   return res.status(HTTP_OK).json({message:"user deleted with sucess"});
               })
               .catch((err)=>{
@@ -185,7 +206,7 @@ class  controllersRouter{
       const { name } = req.query;
       
     try{
-      const foundName = await User.findAll({where:{
+      const foundName = await User.findAll({include:['Document']},{where:{
           [Op.or]:[{ name }]
       }})
       .then(function(foundName){
@@ -195,7 +216,7 @@ class  controllersRouter{
          return res.status(HTTP_CREATED).json(foundName);
       })
       .catch((err)=>{
-          return res.status(HTTP_BAD_REQUEST).json();
+          return res.status(HTTP_BAD_REQUEST).json(err);
       })
     }
     catch(err){
