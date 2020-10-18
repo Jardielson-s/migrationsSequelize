@@ -17,3 +17,4 @@
 * npm start
 
 #### image-1
+![image1](https://github.com/Jardielson-s/migrationsSequelize/blob/main/image1.png)
