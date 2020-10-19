@@ -77,7 +77,7 @@ class  controllersRouter{
          const hash  = bcrypt.hashSync(password,10);
          
 
-         const findEmail = await User.findOne({include:'Document'},{where:{email}});
+         const findEmail = await User.findOne({where:{email},include:'Document'});
          
         
         
