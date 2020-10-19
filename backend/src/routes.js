@@ -11,6 +11,7 @@ routes.get("/loadOne/:id",Authorization.authenticate,controller.loadOne);
 routes.post("/update/:id",Authorization.authenticate,controller.update);
 routes.get("/destroy/:id",Authorization.authenticate,controller.destroy);
 routes.get("/sarch",Authorization.authenticate,controller.sarch);
+routes.post("/login",controller.login);
 
 
 

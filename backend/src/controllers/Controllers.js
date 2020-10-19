@@ -71,6 +71,35 @@ class  controllersRouter{
    
     }
 
+    async login(req,res){
+  
+         const {email,password} = req.body;
+         const hash  = bcrypt.hashSync(password,10);
+         
+
+         const findEmail = await User.findOne({include:'Document'},{where:{email}});
+         
+        
+        
+         if(!findEmail.email)
+           return res.status(HTTP_NOT_FOUND).json({message:"email invalid"});
+        
+        
+        
+        const passCompare = bcrypt.compareSync(password,findEmail.password);
+        
+        if(passCompare === false)
+         return res.status(HTTP_NOT_FOUND).json({message:"password invalid"});
+        
+
+
+
+        const token = CreateToken.create_token(findEmail.id);
+        return res.status(HTTP_OK).json({findEmail,token});
+
+    }
+
+
         async load(req,res){
         try{
           const data = await User.findAll({
@@ -125,7 +154,7 @@ class  controllersRouter{
           const data = await User.findByPk(req.params.id);
 
           const { cpf,number_account,balance,location,phone} = req.body;
-          console.log(cpf,number_account,balance,location,phone);
+          
           
           if(data){
               const {name,email,password} = req.body;
