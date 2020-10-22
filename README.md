@@ -20,3 +20,4 @@
 ![image1](https://github.com/Jardielson-s/migrationsSequelize/blob/main/image1.png)
 #### image-2
 ![image1](https://github.com/Jardielson-s/migrationsSequelize/blob/main/image2.png)
+![image1](https://github.com/Jardielson-s/migrationsSequelize/blob/main/image3.png)
