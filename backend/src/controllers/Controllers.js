@@ -254,6 +254,43 @@ class  controllersRouter{
     }
    }
 
+   async tranfer(req,res){
+    
+      const id = req.params.id;
+      const  { valueTransfer,number_account }  = req.body;
+      const data = await Document.findByPk(id)
+     
+      
+        const dataToReceve = await Document.findOne({where:{
+            number_account
+        }});
+       
+        if(!dataToReceve)
+          return res.status(HTTP_BAD_REQUEST).json({message:"account noot found"});
+    
+
+          if(data.balance <= 0)
+             return res.status(HTTP_BAD_REQUEST).json({message:"you have no balance"});
+          else if(data.balance < valueTransfer)
+             return res.status(HTTP_BAD_REQUEST).json({message:"not enough balance"});
+          
+          const result = data.balance - valueTransfer;
+         
+          await data.update({
+              balance: result
+          });
+         
+          const  soma  = dataToReceve.balance - (-valueTransfer);
+            await dataToReceve.update({
+              balance: soma
+            }).catch(err => {return console.log(err)});
+        
+          
+            return res.status(HTTP_OK).json({message:"value was transferred"});
+     
+
+   }
+
 }
 
 
