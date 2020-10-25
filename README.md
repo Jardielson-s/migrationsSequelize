@@ -19,5 +19,7 @@
 #### image-1
 ![image1](https://github.com/Jardielson-s/migrationsSequelize/blob/main/image1.png)
 #### image-2
-![image1](https://github.com/Jardielson-s/migrationsSequelize/blob/main/image2.png)
-![image1](https://github.com/Jardielson-s/migrationsSequelize/blob/main/image3.png)
+![image2](https://github.com/Jardielson-s/migrationsSequelize/blob/main/image2.png)
+#### image-3
+![image3](https://github.com/Jardielson-s/migrationsSequelize/blob/main/image3.png)
+![image4](https://github.com/Jardielson-s/migrationsSequelize/blob/main/image4.png)
