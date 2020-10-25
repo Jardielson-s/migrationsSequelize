@@ -22,4 +22,5 @@
 ![image2](https://github.com/Jardielson-s/migrationsSequelize/blob/main/image2.png)
 #### image-3
 ![image3](https://github.com/Jardielson-s/migrationsSequelize/blob/main/image3.png)
+#### image-4
 ![image4](https://github.com/Jardielson-s/migrationsSequelize/blob/main/image4.png)
