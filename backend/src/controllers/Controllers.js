@@ -11,63 +11,74 @@ const { Op } = require('sequelize');
 class  controllersRouter{
 
      async store(req,res){
-         const {name,email,password,cpf,number_account,balence,location,phone} = req.body;
+         const {name,email,password,cpf,number_account,balance,location,phone} = req.body;
 
          const hash = bcrypt.hashSync(password,10);
 
          const findEmail = await User.findOne({where:{
              email
          }});
+         
+         const findCpf = await Document.findOne({where:{
+             cpf
+         }});
+
+         const findAccount = await Document.findOne({where:{
+             number_account
+         }});
 
          if(!findEmail){
-          try{
-          const users = await User.create({
-              name,
-              email,
-              password:hash,           
-          })
-          .then(async function(users){
+          if(!findCpf){
+           if(!findAccount){
+             try{
+                const users = await User.create({
+                          name,
+                          email,
+                          password:hash,           
+                    })
+                     .then(async function(users){
 
 
-            const id = users.id;
+                         const id = users.id;
             
-            const token =  CreateToken.create_token(id);
+                         const token =  CreateToken.create_token(id);
             
-            const documents = await Document.create({
-                cpf,
-                number_account,
-                balence,
-                location,
-                phone
-            })
-            .then(async function(documents){
+                        const documents = await Document.create({
+                               cpf,
+                               number_account,
+                               balance,
+                               location,
+                               phone
+                     })
+                     .then(async function(documents){
                
-                await documents.setUser(users.id);
+                        await documents.setUser(users.id);
 
-                return res.status(HTTP_CREATED).send({users,token,documents});
-            })
-            .catch((err)=>{
-                res.status(HTTP_BAD_REQUEST).json({err});
-            });
-            
-
-            
-          })
-          .catch((err)=>{
-              console.log(err);
-              return  res.status(HTTP_BAD_REQUEST).json({message:"don't possible registrer user"+err});
-          })
-      
-          
-          }
-          catch(err){
-              console.log(err);
-              return res.status(HTTP_BAD_REQUEST).json(err);
-          }
-        }
-        else{
-            return res.status(HTTP_BAD_REQUEST).json({message:"email already exist"});
-        }
+                        return res.status(HTTP_CREATED).send({users,token,documents});
+                     })
+                    .catch((err)=>{
+                        return  res.status(HTTP_BAD_REQUEST).json({err});
+                    });  
+                   })
+                   .catch((err)=>{
+                     return  res.status(HTTP_BAD_REQUEST).json({message:"don't possible registrer user"+err});
+                   });
+                   }
+                   catch(err){              
+                         return res.status(HTTP_BAD_REQUEST).json(err);
+                    }
+                   }
+               else{
+                    return res.status(HTTP_BAD_REQUEST).json({message:"account already exist"});
+                   }
+               }
+               else{
+                    return res.status(HTTP_BAD_REQUEST).json({message:"cpf already exist"});
+               }
+              }
+                else{
+                    return res.status(HTTP_BAD_REQUEST).json({message:"email already exist"});
+              }
    
     }
 
@@ -260,22 +271,24 @@ class  controllersRouter{
       const  { valueTransfer,number_account }  = req.body;
       const data = await Document.findByPk(id)
      
-      
-        const dataToReceve = await Document.findOne({where:{
+      if(valueTransfer == 0)
+         return res.status(HTTP_BAD_REQUEST).json({message:"don't possible do tranference of 0"});
+        
+         const dataToReceve = await Document.findOne({where:{
             number_account
         }});
        
         if(!dataToReceve)
-          return res.status(HTTP_BAD_REQUEST).json({message:"account noot found"});
-    
-
-          if(data.balance <= 0)
-             return res.status(HTTP_BAD_REQUEST).json({message:"you have no balance"});
-          else if(data.balance < valueTransfer)
-             return res.status(HTTP_BAD_REQUEST).json({message:"not enough balance"});
+          return res.status(HTTP_BAD_REQUEST).json({message:"account not found"});
+          
+        if(data.balance <= 0)
+          return res.status(HTTP_BAD_REQUEST).json({message:"you have no balance"});
+        
+        if(data.balance < valueTransfer)
+          return res.status(HTTP_BAD_REQUEST).json({message:"not enough balance"});
           
           const result = data.balance - valueTransfer;
-         
+          
           await data.update({
               balance: result
           });
@@ -285,7 +298,7 @@ class  controllersRouter{
               balance: soma
             }).catch(err => {return console.log(err)});
         
-          
+            
             return res.status(HTTP_OK).json({message:"value was transferred"});
      
 
