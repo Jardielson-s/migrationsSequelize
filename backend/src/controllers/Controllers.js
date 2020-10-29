@@ -162,50 +162,87 @@ class  controllersRouter{
     async update(req,res){
        
         try{
+
+
           const data = await User.findByPk(req.params.id);
 
+          const {name,email,password} = req.body;
+
           const { cpf,number_account,balance,location,phone} = req.body;
-          
-          
-          if(data){
-              const {name,email,password} = req.body;
-              const hash = bcrypt.hashSync(password,10);
 
-              await data.update({
-                  name,
-                  email,
-                  password:hash
-              })
-              .then(async function(data){
-                  const {id} = data;
+          const findEmail = await User.findOne({where:{
+            email
+           }});
+
+           const findAccount = await Document.findOne({where:{
+                      number_account
+           }});
+
+           const findCpf = await Document.findOne({where:{
+                cpf
+           }});
+           //return console.log(data.email,findEmail.email);
+
+           //if(findEmail.email == data.email)
+           //     return;// console.log(data.email,findEmail.email);
+
+           if(findEmail)
+           {
+              if(findEmail.email == data.email)
+              {
+                 
+              }
+              else 
+              {
+                  return res.status(HTTP_BAD_REQUEST).json({message:"email already exixts"});
+              }
+           }
+
+           if(findAccount)
+              return res.status(HTTP_BAD_REQUEST).json({message:"account already exists"});
+            
+           if(findCpf)
+              return res.status(HTTP_BAD_REQUEST).json({message:"cpf already exists"});
+            
+          
+               if(data){
+                            
+                       const hash = bcrypt.hashSync(password,10);         
+                       await data.update({      
+                           name,      
+                           email,      
+                           password:hash      
+                   })      
+                   .then(async function(data){      
+                       const {id} = data;      
+                     
+                       const document = await Document.findByPk(id);
                 
-                  const document = await Document.findByPk(id);
-
-                  await document.update({
-                      cpf,
-                      number_account,
-                      balance,
-                      location,
-                      phone
-                  })
-                  .catch((err)=>{
-                      res.status(HTTP_BAD_REQUEST).send({err});
-                  });
-                  const datas = await User.findByPk(req.params.id,{include:['Document']});
-                  return res.status(HTTP_OK).json(datas);
-              })
-              .catch((err)=>{
-                  return res.status(HTTP_BAD_REQUEST).json({message:"don't possible update datas"});
-              })
-          }
-          else{
-              return res.status(HTTP_NOT_FOUND).json({message:"user not found"});
-          }
-        
-        }
-        catch(err){
-            return res.status(HTTP_INTERNAL_ERROR).json({message:"don't connect with database"})
-        }
+                       await document.update({
+                           cpf,
+                           number_account,
+                           balance,
+                           location,
+                           phone
+                       })
+                       .catch((err)=>{
+                           res.status(HTTP_BAD_REQUEST).send({err});
+                       });
+                       const datas = await User.findByPk(req.params.id,{include:['Document']});
+                       return res.status(HTTP_OK).json(datas);
+                   })
+                   .catch((err)=>{
+                       return res.status(HTTP_BAD_REQUEST).json({message:"don't possible update datas"});
+                   })
+                 }
+                 else{
+                     return res.status(HTTP_NOT_FOUND).json({message:"user not found"});
+                 }
+            }
+           catch(err){
+               console.log(err);
+               return res.status(HTTP_INTERNAL_ERROR).json({message:"don't connect with database"})
+           }
     }
 
     async destroy(req,res){
@@ -270,41 +307,51 @@ class  controllersRouter{
       const id = req.params.id;
       const  { valueTransfer,number_account }  = req.body;
       const data = await Document.findByPk(id)
-     
-      if(valueTransfer == 0)
-         return res.status(HTTP_BAD_REQUEST).json({message:"don't possible do tranference of 0"});
-        
-         const dataToReceve = await Document.findOne({where:{
-            number_account
-        }});
-       
-        if(!dataToReceve)
-          return res.status(HTTP_BAD_REQUEST).json({message:"account not found"});
+      
+      if(data)
+       {
+        if(valueTransfer == 0)
+           return res.status(HTTP_BAD_REQUEST).json({message:"don't possible do tranference of 0"});
           
-        if(data.balance <= 0)
-          return res.status(HTTP_BAD_REQUEST).json({message:"you have no balance"});
-        
-        if(data.balance < valueTransfer)
-          return res.status(HTTP_BAD_REQUEST).json({message:"not enough balance"});
-          
-          const result = data.balance - valueTransfer;
-          
-          await data.update({
-              balance: result
-          });
+           const dataToReceve = await Document.findOne({where:{
+              number_account
+          }});
          
-          const  soma  = dataToReceve.balance - (-valueTransfer);
-            await dataToReceve.update({
-              balance: soma
-            }).catch(err => {return console.log(err)});
-        
+          if(!dataToReceve)
+            return res.status(HTTP_BAD_REQUEST).json({message:"account not found"});
+
+          if(data.number_account == number_account)
+            return res.status(HTTP_BAD_REQUEST).json({message:"you cannot transfer to your own account"});
             
-            return res.status(HTTP_OK).json({message:"value was transferred"});
-     
-
-   }
-
-}
-
+          if(data.balance <= 0)
+            return res.status(HTTP_BAD_REQUEST).json({message:"you have no balance"});
+          
+          if(data.balance < valueTransfer)
+            return res.status(HTTP_BAD_REQUEST).json({message:"not enough balance"});
+            
+            const result = data.balance - valueTransfer;
+            
+            await data.update({
+                balance: result
+            });
+           
+            const  soma  = dataToReceve.balance - (-valueTransfer);
+              await dataToReceve.update({
+                balance: soma
+              }).catch(err => {return console.log(err)});
+          
+              
+              return res.status(HTTP_OK).json({message:"value was transferred"});
+            }
+            else 
+            {
+                return res.status(HTTP_NOT_FOUND).json({message:"user not found"})
+            }
+       
+  
+   }  
+  
+}  
+  
 
 module.exports = new controllersRouter();
