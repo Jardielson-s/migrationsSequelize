@@ -170,16 +170,59 @@ class  controllersRouter{
           if(data){
               const {name,email,password} = req.body;
               const hash = bcrypt.hashSync(password,10);
+              
+              const findEmail = await User.findOne({where:{
+                  email
+              }});
+             
+              if(findEmail.email)
+              {
+                if(data.email === email)
+                 {
 
+                 }
+                 else
+                 {
+                   return res.status(HTTP_BAD_REQUEST).json({message:"cpf already exists"});
+                 }
+              }
+              
               await data.update({
                   name,
                   email,
                   password:hash
               })
               .then(async function(data){
+
                   const {id} = data;
                 
                   const document = await Document.findByPk(id);
+                  
+                  if(document.number_account)
+                  {
+                    if(document.number_account === number_account)
+                    {
+   
+                    }
+                    else
+                    {
+                      return res.status(HTTP_BAD_REQUEST).json({message:"accont already exists"});
+                    }
+                    
+                  }
+
+                  if(document.cpf)
+                  {
+                    if(document.number_account === number_account)
+                    {
+   
+                    }
+                    else
+                    {
+                        return res.status(HTTP_BAD_REQUEST).json({message:"cpf already exists"});
+                    }
+                  }
+                    
 
                   await document.update({
                       cpf,
@@ -277,6 +320,9 @@ class  controllersRouter{
          const dataToReceve = await Document.findOne({where:{
             number_account
         }});
+
+        if(data.number_account === number_account)
+          return res.status(HTTP_BAD_REQUEST).json({message:"you don't can tranfer to own account"});
        
         if(!dataToReceve)
           return res.status(HTTP_BAD_REQUEST).json({message:"account not found"});
