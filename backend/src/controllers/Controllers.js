@@ -36,14 +36,14 @@ class  controllersRouter{
                           email,
                           password:hash,           
                     })
-                     .then(async function(users){
+                     .then(users => {
 
 
                          const id = users.id;
             
                          const token =  CreateToken.create_token(id);
             
-                        const documents = await Document.create({
+                        const documents =  Document.create({
                                cpf,
                                number_account,
                                balance,
@@ -113,7 +113,7 @@ class  controllersRouter{
 
         async load(req,res){
         try{
-          const data = await User.findAll({
+          const data =  User.findAll({
               include:[{
                   model: Document,
                   as: 'Document',
@@ -208,7 +208,7 @@ class  controllersRouter{
                if(data){
                             
                        const hash = bcrypt.hashSync(password,10);         
-                       await data.update({      
+                       data.update({      
                            name,      
                            email,      
                            password:hash      
@@ -252,7 +252,7 @@ class  controllersRouter{
           
           if(data){
             
-              await data.destroy({where:{
+              data.destroy({where:{
                   id:data
               }})
               .then(function(data){
@@ -283,7 +283,7 @@ class  controllersRouter{
       const { name } = req.query;
       
     try{
-      const foundName = await User.findAll({include:['Document']},{where:{
+      const foundName = User.findAll({include:['Document']},{where:{
           [Op.or]:[{ name }]
       }})
       .then(function(foundName){
